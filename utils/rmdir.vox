@@ -1,0 +1,11 @@
+(reimplementation of core utils RMDIR command in vox)
+
+A number called errcount is 0.
+
+To "remove a directory" with a text called "path".
+  Remove the directory called path.
+  On error Print "Failed to remove directory at {path}",
+    Increment errcount.
+
+"remove a directory" with each filepath from arguments's all.
+exit errcount.

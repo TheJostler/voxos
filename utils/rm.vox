@@ -1,0 +1,14 @@
+(reimplementation of core utils RM command in vox)
+
+A flag called recursive is "-r" or "--recursive", it is a boolean.
+Open a file for writing at "/dev/stderr" called stderr.
+
+To "remove a directory" with a text called "path".
+  Remove the file called each filename from {list all files at path}.
+  Remove the directory called "path".  
+
+Remove the file called each filepath from arguments's all,
+  but if the filepath is a directory and recursive, "remove a directory" with filepath,
+  otherwise write "{arguments's name} cannot remove '{filepath}': Is a directory" to stderr.
+
+Exit 0.

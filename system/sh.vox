@@ -15,6 +15,13 @@ Open a file at 0 for reading called stdin.
 Create a buffer called line.
 a buffer called "word" is 256 bytes in size.
 
+To "change directory" with a list called argz,
+    if argz's size is 1 then,
+        Change directory to element 1 of argz.
+        On error print "cd: failed to change directory".
+        Return.
+    print "cd: too many arguments".
+
 While true,
     print "vsh $ " without newline,
     clear line,
@@ -58,11 +65,15 @@ While true,
 
     a number called "pid" is 0,
     if cmd is "exit" then, exit 0.
+    if cmd is "reboot" then, reboot.
+    if cmd is "shutdown" then, shutdown.
     if have_cmd is 1 then, set pid to fork the process.
 
     (Child: execve only returns on failure, so falling through to the
      next Execute IS the search order: as given, /bin, /usr/bin)
     if pid is 0 and have_cmd is 1 then,
+        if cmd is "cd" then, "change directory" with argv.
+	Otherwise,
         Execute cmd with arguments argv,
         a text called "binpath" is "/bin/{cmd}",
         Execute binpath with arguments argv,

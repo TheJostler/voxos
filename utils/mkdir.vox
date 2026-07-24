@@ -1,0 +1,11 @@
+(reimplementation of core utils MKDIR command in vox)
+
+A number called errcount is 0.
+
+To "create a directory" with a text called "path".
+  Create a directory called path.
+  On error Print "Failed to create directory at {path}",
+    Increment errcount.
+
+"create a directory" with each filepath from arguments's all.
+exit errcount.
