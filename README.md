@@ -1,2 +1,2 @@
 # voxos
-This is a Linux distribution written in pure Vox
+This is a collection of utilities and an init for a minimal operating system written in pure Vox

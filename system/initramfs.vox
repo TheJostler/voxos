@@ -1,0 +1,160 @@
+(Initramfs Setup Example)
+(Demonstrates proposed mount and related syscalls for initramfs operations)
+
+A text called "Program Version" is "0.1.0".
+
+(Reusable substring search: is " devname\n" present anywhere in hay?
+ Vox has no built-in contains/substring operator, only whole-string
+ equality (`is`), so this is a hand-rolled sliding-window byte compare.
+ The needle is padded with a leading space and trailing newline so a
+ match can only occur on a whole /proc/partitions device-name token -
+ without both boundaries, "sda1" would also incorrectly match inside
+ "sda11", and the bare disk name "nvme0n1" would match every one of
+ its own partitions.)
+To "contains token" of a buffer called "hay" and a text called "devname".
+  a buffer called "needle" is 64 bytes in size.
+  copy " {devname}\n" to needle.
+  a number called "H" is hay's size.
+  a number called "N" is needle's size.
+  a number called "i" is 1.
+  a number called "j" is 1.
+  a number called "mism" is 0.
+  a number called "hb" is 0.
+  a number called "nb" is 0.
+  a number called "top" is {H subtract N} add 1.
+  a boolean called "found" is false.
+  While i is less than or equal to top,
+      set mism to 0,
+      set j to 1,
+      While j is less than or equal to N,
+          set hb to byte {i add j subtract 1} of hay,
+          set nb to byte j of needle,
+          if hb is not nb then, set mism to 1.
+          increment j.
+      if mism is 0 then, set found to true.
+      increment i.
+  Return a boolean, found.
+
+(Check a fixed candidate list against a fresh /proc/partitions read.
+ Root lives on the SECOND partition of a USB flash drive, not the
+ internal NVMe disk. USB mass-storage devices enumerate through the
+ SCSI/usb-storage stack as /dev/sdX, never /dev/nvme* - that naming is
+ for the internally-attached drive only. USB probe order relative to
+ other buses is not guaranteed, so the letter is not necessarily "a" -
+ if the internal NVMe controller (or anything else) claims a SCSI-ish
+ name first, or the USB drive itself just enumerates later, the flash
+ drive could land on sdb, sdc, etc. Checking a small letter range
+ covers this without needing to know the exact order in advance.
+ Extend this list if your hardware needs a naming scheme not covered
+ here - it only needs the bare partition name, not the /dev/ prefix,
+ since that is what /proc/partitions itself contains.)
+To "find root device" of a buffer called "hay".
+  If "contains token" of hay and "sda2" is true then,
+      Return a text, "/dev/sda2".
+  If "contains token" of hay and "sdb2" is true then,
+      Return a text, "/dev/sdb2".
+  If "contains token" of hay and "sdc2" is true then,
+      Return a text, "/dev/sdc2".
+  If "contains token" of hay and "sdd2" is true then,
+      Return a text, "/dev/sdd2".
+  Return a text, "".
+
+(Setup script for early userspace initialization)
+Print "Initramfs setup starting...".
+
+(Create essential directories)
+Create a directory called "/sys".
+Create a directory called "/dev".
+Create a directory called "/run".
+Create a directory called "/tmp".
+Create a directory called "/newroot".
+
+(Mount virtual filesystems)
+
+Mount "sysfs" at "/sys" with type "sysfs".
+On error print "Failed to mount /sys", wait 5 seconds, reboot.
+
+Mount "devtmpfs" at "/dev" with type "devtmpfs".
+On error print "Failed to mount /dev", wait 5 seconds, reboot.
+
+Mount "tmpfs" at "/run" with type "tmpfs".
+On error print "Failed to mount /run", wait 5 seconds, reboot.
+
+Mount "tmpfs" at "/tmp" with type "tmpfs".
+On error print "Failed to mount /tmp", wait 5 seconds, reboot.
+
+(Create device nodes if needed)
+Create a device node called "/dev/null" with type "c" major 1 minor 3.
+Create a device node called "/dev/zero" with type "c" major 1 minor 5.
+Create a device node called "/dev/random" with type "c" major 1 minor 8.
+Create a device node called "/dev/urandom" with type "c" major 1 minor 9.
+
+(Set up symlinks for compatibility)
+Create symbolic link from "/proc/self/fd" to "/dev/fd".
+On error print "Failed to create /proc/self/fd symlink".
+Create symbolic link from "/proc/self/fd/0" to "/dev/stdin".
+On error print "Failed to create /proc/self/fd/0 symlink".
+Create symbolic link from "/proc/self/fd/1" to "/dev/stdout".
+On error print "Failed to create /proc/self/fd/1 symlink".
+Create symbolic link from "/proc/self/fd/2" to "/dev/stderr".
+On error print "Failed to create /proc/self/fd/2 symlink".
+
+(Mount /proc so /proc/partitions - ground truth for what the kernel
+ has actually enumerated - is readable. A device that appears here
+ exists and is mountable by that name under /dev; a device missing
+ from here was never detected by any driver, and no amount of waiting
+ will ever make it appear.)
+Create a directory called "/proc".
+Mount "proc" at "/proc" with type "proc".
+On error print "could not mount /proc".
+
+(Scan /proc/partitions for a known root device, re-reading it fresh
+ each attempt in case a slow-to-enumerate controller needs a moment.
+ Falls back to the same interactive "type reboot to give up" escape
+ hatch the original hardcoded-device version used.)
+a buffer called "partbuf" is 4096 bytes in size.
+a text called "root_device" is "".
+While root_device is "",
+    open a file for reading called "pp" at "/proc/partitions",
+    read from pp into partbuf,
+    close pp,
+    the root_device is "find root device" of partbuf,
+    if root_device is "" then,
+        Wait 100 milliseconds.
+
+(Mount the real root filesystem)
+Mount the root_device at "/newroot" with type "ext4".
+On error print "Failed to mount root filesystem", wait 5 seconds, reboot.
+
+(pivot_root requires put_old to exist INSIDE the new root - it lives on
+ the freshly mounted filesystem, so it can only be created now)
+Create a directory called "/newroot/oldroot".
+
+(Move virtual filesystems to new root)
+Mount "/dev" at "/newroot/dev" with type "none" with options "move".
+Mount "/run" at "/newroot/run" with type "none" with options "move".
+Mount "/proc" at "/newroot/proc" with type "none" with options "move".
+Mount "/sys" at "/newroot/sys" with type "none" with options "move".
+
+(Switch to new root using pivot_root)
+Pivot root to "/newroot" with old root "/newroot/oldroot".
+On error print "Failed to pivot_root",  wait 5 seconds, reboot.
+
+(Change to new root directory)
+Change directory to "/".
+On error print "Failed to chdir to new root", wait 5 seconds, reboot.
+
+(Release the old initramfs root. Lazy detach: the mount is still busy
+ while this program runs from it, so MNT_DETACH defers the release
+ until the last user - this process - is gone.)
+Unmount "/oldroot" lazily.
+On error print "Failed to detach old root", wait 5 seconds, reboot.
+
+(Execute sh)
+Print "== Welcome to Vox OS ==".
+Execute "/bin/sh".
+On error print "Failed to execute init", wait 5 seconds, reboot.
+
+(Should never reach here)
+Print "Initramfs setup complete. Exiting.".
+Exit 0.
