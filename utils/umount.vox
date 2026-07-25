@@ -7,22 +7,22 @@ A flag called "wants version" is "--version" or "-v", it is a boolean.
 A text called "Program" is arguments's name.
 
 If "wants help" then,
-  Print "{Program} - remove directories",
-  Print "Usage: {Program} [OPTION]... DIRECTORY...",
-  Print "With no DIRECTORY, or when DIRECTORY is -, read standard input.",
+  Print "{Program} - unmount filesystems",
+  Print "Usage: {Program} [OPTION]... TARGET...",
+  Print "With no TARGET, or when TARGET is -, read standard input.",
   Print "\nOptions:",
   Print "  -h, --help   display this help and exit",
   Print "  -v, --version output version information and exit",
   Print "\nExamples:",
-  Print "\t{Program} dir1 dir2\tRemove directories dir1 and dir2",
-  Print "\t{Program} - dir3\tRemove directory dir3",
+  Print "\t{Program} /dev/sda1 /mnt\tUnmount /dev/sda1 from /mnt",
+  Print "\t{Program} - /mnt\tUnmount /dev/sda1 (assumed) from /mnt",
   Print "See https://github.com/vox-lang/vox for more information.",
   Exit 0.
   
 Open a file for writing at "/dev/stderr" called stderr.
 
-To "remove a file" with a text called "file path".
-  Delete the file 'file path'.
-    On error write "{Program}: Could not remove the file at {file path}\n" to stderr.
+To 'unmount target' with a text called 'target path'.
+    Unmount 'target path'.
+      On error write "{Program}: Failed to unmount {target}\n" to stderr.
 
-"remove a file" on each 'file path' from arguments's all.
+"unmount target" on each target from arguments's all.

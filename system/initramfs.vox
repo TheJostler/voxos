@@ -1,7 +1,12 @@
-(Initramfs Setup Example)
-(Demonstrates proposed mount and related syscalls for initramfs operations)
+(Vox OS Core Utilities)
+(Initramfs Setup)
 
 A text called "Program Version" is "0.1.0".
+
+(Config)
+A number called 'configured wait period on error' is 5 (This is how many seconds we will wait before rebooting).
+A text called 'configured welcome message' is "== Welcome to Vox OS ==".
+A text called 'configured next action after initramfs has finished' is "/bin/sh".
 
 (Reusable substring search: is " devname\n" present anywhere in hay?
  Vox has no built-in contains/substring operator, only whole-string
@@ -14,25 +19,23 @@ A text called "Program Version" is "0.1.0".
 To "contains token" of a buffer called "hay" and a text called "devname".
   a buffer called "needle" is 64 bytes in size.
   copy " {devname}\n" to needle.
-  a number called "H" is hay's size.
-  a number called "N" is needle's size.
-  a number called "i" is 1.
-  a number called "j" is 1.
-  a number called "mism" is 0.
-  a number called "hb" is 0.
-  a number called "nb" is 0.
-  a number called "top" is {H subtract N} add 1.
-  a boolean called "found" is false.
-  While i is less than or equal to top,
-      set mism to 0,
-      set j to 1,
-      While j is less than or equal to N,
-          set hb to byte {i add j subtract 1} of hay,
-          set nb to byte j of needle,
-          if hb is not nb then, set mism to 1.
-          increment j.
-      if mism is 0 then, set found to true.
-      increment i.
+  a number called "hay index" is 1. (To track the position of the needle within the hay.)
+  a number called "needle index" is 0. (To track the current position within the needle when matching byte-by-byte.)
+  a number called "mismatch" is 0. (To track if a mismatch has been found.)
+  a number called "hay byte" is 0. (To store the current byte from the hay buffer.)
+  a number called "needle byte" is 0. (To store the current byte from the needle buffer.)
+  a number called "top" is {hay's size subtract needle's size} add 1. (To determine the maximum starting position for the search.)
+  a boolean called "found" is false. (We Found IT!)
+  While 'hay index' is less than or equal to top,
+      set mismatch to 0 (reset the mismatch),
+      set 'needle index' to 1,
+      While 'needle index' is less than or equal to needle's size,
+          set 'hay byte' to byte {'hay index' add 'needle index' subtract 1} of hay,
+          set 'needle byte' to byte 'needle index' of needle,
+          if 'hay byte' is not 'needle byte' then, set mismatch to 1.
+          increment 'needle index'.
+      if mismatch is 0 then, set found to true.
+      increment the 'hay index'.
   Return a boolean, found.
 
 (Check a fixed candidate list against a fresh /proc/partitions read.
@@ -72,16 +75,16 @@ Create a directory called "/newroot".
 (Mount virtual filesystems)
 
 Mount "sysfs" at "/sys" with type "sysfs".
-On error print "Failed to mount /sys", wait 5 seconds, reboot.
+On error print "Failed to mount /sys", wait the 'configured wait period on error' seconds, reboot.
 
 Mount "devtmpfs" at "/dev" with type "devtmpfs".
-On error print "Failed to mount /dev", wait 5 seconds, reboot.
+On error print "Failed to mount /dev", wait the 'configured wait period on error' seconds, reboot.
 
 Mount "tmpfs" at "/run" with type "tmpfs".
-On error print "Failed to mount /run", wait 5 seconds, reboot.
+On error print "Failed to mount /run", wait the 'configured wait period on error' seconds, reboot.
 
 Mount "tmpfs" at "/tmp" with type "tmpfs".
-On error print "Failed to mount /tmp", wait 5 seconds, reboot.
+On error print "Failed to mount /tmp", wait the 'configured wait period on error' seconds, reboot.
 
 (Create device nodes if needed)
 Create a device node called "/dev/null" with type "c" major 1 minor 3.
@@ -118,13 +121,13 @@ While root_device is "",
     open a file for reading called "pp" at "/proc/partitions",
     read from pp into partbuf,
     close pp,
-    the root_device is "find root device" of partbuf,
+    the root_device is "find root device" on partbuf,
     if root_device is "" then,
         Wait 100 milliseconds.
 
 (Mount the real root filesystem)
 Mount the root_device at "/newroot" with type "ext4".
-On error print "Failed to mount root filesystem", wait 5 seconds, reboot.
+On error print "Failed to mount root filesystem", wait the 'configured wait period on error' seconds, reboot.
 
 (pivot_root requires put_old to exist INSIDE the new root - it lives on
  the freshly mounted filesystem, so it can only be created now)
@@ -138,23 +141,23 @@ Mount "/sys" at "/newroot/sys" with type "none" with options "move".
 
 (Switch to new root using pivot_root)
 Pivot root to "/newroot" with old root "/newroot/oldroot".
-On error print "Failed to pivot_root",  wait 5 seconds, reboot.
+On error print "Failed to pivot_root",  wait the 'configured wait period on error' seconds, reboot.
 
 (Change to new root directory)
 Change directory to "/".
-On error print "Failed to chdir to new root", wait 5 seconds, reboot.
+On error print "Failed to chdir to new root", wait the 'configured wait period on error' seconds, reboot.
 
 (Release the old initramfs root. Lazy detach: the mount is still busy
  while this program runs from it, so MNT_DETACH defers the release
  until the last user - this process - is gone.)
 Unmount "/oldroot" lazily.
-On error print "Failed to detach old root", wait 5 seconds, reboot.
+On error print "Failed to detach old root", wait the 'configured wait period on error' seconds, reboot.
 
-(Execute sh)
-Print "== Welcome to Vox OS ==".
-Execute "/bin/sh".
-On error print "Failed to execute init", wait 5 seconds, reboot.
+(init success hand-over)
+Print the 'configured welcome message'.
+Execute the 'configured next action after initramfs has finished'.
+On error print "Failed to execute init", wait the 'configured wait period on error' seconds, reboot.
 
 (Should never reach here)
 Print "Initramfs setup complete. Exiting.".
-Exit 0.
+Exit 1.

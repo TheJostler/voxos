@@ -7,22 +7,22 @@ A flag called "wants version" is "--version" or "-v", it is a boolean.
 A text called "Program" is arguments's name.
 
 If "wants help" then,
-  Print "{Program} - remove directories",
-  Print "Usage: {Program} [OPTION]... DIRECTORY...",
-  Print "With no DIRECTORY, or when DIRECTORY is -, read standard input.",
+  Print "{Program} - mount filesystems",
+  Print "Usage: {Program} [OPTION]... DEVICE MOUNTPOINT",
+  Print "With no DEVICE or MOUNTPOINT, or when DEVICE or MOUNTPOINT is -, read standard input.",
   Print "\nOptions:",
   Print "  -h, --help   display this help and exit",
   Print "  -v, --version output version information and exit",
   Print "\nExamples:",
-  Print "\t{Program} dir1 dir2\tRemove directories dir1 and dir2",
-  Print "\t{Program} - dir3\tRemove directory dir3",
+  Print "\t{Program} /dev/sda1 /mnt\tMount /dev/sda1 to /mnt",
+  Print "\t{Program} - /mnt\tMount /dev/sda1 (assumed) to /mnt",
   Print "See https://github.com/vox-lang/vox for more information.",
   Exit 0.
   
 Open a file for writing at "/dev/stderr" called stderr.
 
-To "remove a file" with a text called "file path".
-  Delete the file 'file path'.
-    On error write "{Program}: Could not remove the file at {file path}\n" to stderr.
+A text called device is arguments's first.
+A text called 'mount path' is element 2 of arguments's raw.
 
-"remove a file" on each 'file path' from arguments's all.
+Mount device at 'mount path' with type "ext4".
+On error write "{Program}: Could not mount {device} at {mount path}\n" to stderr.

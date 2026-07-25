@@ -1,4 +1,4 @@
-(vsh - a minimal interactive shell)
+(Vox OS Core Utilities - vsh a minimal interactive shell)
 (Reads a command line, splits it into whitespace-separated tokens,
  forks, and executes the command with its arguments. Commands are
  tried as given, then under /bin and /usr/bin. Type "exit" to quit.

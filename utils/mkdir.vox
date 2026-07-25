@@ -1,11 +1,28 @@
-(reimplementation of core utils MKDIR command in vox)
+(Vox OS Core Utilities)
+A text called "Program Version" is "0.1.10".
 
-A number called errcount is 0.
+(Parse the flags now)
+A flag called "wants help" is "--help" or "-h", it is a boolean.
+A flag called "wants version" is "--version" or "-v", it is a boolean.
+A text called "Program" is arguments's name.
 
-To "create a directory" with a text called "path".
-  Create a directory called path.
-  On error Print "Failed to create directory at {path}",
-    Increment errcount.
+If "wants help" then,
+  Print "{Program} - create directories",
+  Print "Usage: {Program} [OPTION]... DIRECTORY...",
+  Print "With no DIRECTORY, or when DIRECTORY is -, read standard input.",
+  Print "\nOptions:",
+  Print "  -h, --help       display this help and exit",
+  Print "  -v, --version    output version information and exit",
+  Print "\nExamples:",
+  Print "\t{Program} dir1 dir2\tCreate directories dir1 and dir2",
+  Print "\t{Program} - dir3\tCreate directory dir3",
+  Print "See https://github.com/vox-lang/vox for more information.",
+  Exit 0.
+  
+Open a file for writing at "/dev/stderr" called stderr.
 
-"create a directory" with each filepath from arguments's all.
-exit errcount.
+To "Create a directory" with a text called "file path".
+  Create a directory called 'file path'.
+    On error write "{Program}: Could not create the directory at {file path}\n" to stderr.
+
+"Create a directory" on each 'file path' from arguments's all.
