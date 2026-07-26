@@ -1,0 +1,34 @@
+
+(Vox OS Core Utilities)
+A text called "Program Version" is "0.1.10".
+
+(Parse the flags now)
+A flag called "out file" is "--out" or "-o", it is a text with default "write-output".
+A flag called "wants help" is "--help" or "-h", it is a boolean.
+A flag called "wants version" is "--version" or "-v", it is a boolean.
+A text called "Program" is arguments's name.
+
+If "wants help" then,
+  Print "{Program} - Read from stdin and write to a file",
+  Print "Usage: {Program} [OPTION]... --out FILE",
+  Print "\nOptions:",
+  Print "  -h, --help   display this help and exit",
+  Print "  -v, --version output version information and exit",
+  Print "  -o, --out    the file to write to (default: write-output)",
+  Print "\nExamples:",
+  Print "\t{Program} --out output.txt < input.txt \tWrite the contents of input.txt to output.txt",
+  Print "See https://github.com/vox-lang/vox for more information.",
+  Exit 0.
+
+Create a buffer called "file contents".
+Create a buffer called "input line".
+
+Open a file for reading at "/dev/stdin" called stdin.
+Open a file for writing at 'out file' called "file handle".
+
+while true,
+  Read line from stdin into 'input line',
+  If 'input line' is "/save\n" then,
+    write 'file contents' to 'file handle',
+    exit 0.
+  Append 'input line' to 'file contents'.
