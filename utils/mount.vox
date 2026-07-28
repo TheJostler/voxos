@@ -10,7 +10,6 @@ To "show version".
   Print "{Program} (voxos) {Program Version} by Josjuar Lister".
   Exit 0.
 
-
 If "wants help" then,
   Print "{Program} - mount filesystems",
   Print "Usage: {Program} [OPTION]... DEVICE MOUNTPOINT",

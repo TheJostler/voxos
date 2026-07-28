@@ -6,9 +6,6 @@ A flag called "wants help" is "--help" or "-h", it is a boolean.
 A flag called "wants version" is "--version" or "-v", it is a boolean.
 A flag called "we are numbering lines" is "--number" or "-n", it is a boolean.
 A flag called "output file" is "--output" or "-o", it is a text.
-
-Parse flags.
-
 A text called "Program" is arguments's name.
 
 To "show version".
