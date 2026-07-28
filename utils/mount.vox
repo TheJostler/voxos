@@ -23,7 +23,7 @@ If "wants help" then,
   Print "See https://github.com/vox-lang/vox for more information.",
   Exit 0.
   
-Open a file for writing at "/dev/stderr" called stderr.
+Open a file for appending at 2(fd - stderr) called stderr.
 
 A text called device is arguments's first.
 A text called 'mount path' is element 2 of arguments's raw.
