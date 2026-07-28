@@ -35,7 +35,7 @@ If "wants version" then,
 (Prepare to cat)
 a boolean called "failed to open a file" is false.
 
-if "output file" is empty then,
+if "output file" is not empty then,
   Open a file for writing called "output" at 'output file'.
 Otherwise,
   Open a file for writing called "output" at 1(fd - stdout).
