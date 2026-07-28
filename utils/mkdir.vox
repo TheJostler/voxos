@@ -6,6 +6,10 @@ A flag called "wants help" is "--help" or "-h", it is a boolean.
 A flag called "wants version" is "--version" or "-v", it is a boolean.
 A text called "Program" is arguments's name.
 
+To "show version".
+  Print "{Program} (voxos) {Program Version} by Josjuar Lister".
+  Exit 0.
+
 If "wants help" then,
   Print "{Program} - create directories",
   Print "Usage: {Program} [OPTION]... DIRECTORY...",

@@ -12,7 +12,7 @@ Parse flags.
 A text called "Program" is arguments's name.
 
 To "show version".
-  Print "{Program} (vox) {Program Version} by Josjuar Lister".
+  Print "{Program} (voxos) {Program Version} by Josjuar Lister".
   Exit 0.
 
 If "wants help" then,
